@@ -3,31 +3,30 @@ import tkinter as tk
 tkfont = 'Consolas 12'
 
 
-def tkwindow(title, window=(20, 20, 500, 300), tkbg='gray75'):
+def tkwindow(title, window=(20, 20, 500, 300), bg='gray75'):
     tkw = tk.Tk()
     tkw.title(title)
     x0, y0, ax, ay = window
     tkw.geometry(f'{ax}x{ay}+{x0}+{y0}')
-    # tkw.iconbitmap('hcube.ico')
-    tkw.config(bg=tkbg)
+    tkw.iconbitmap('pycubelib\hcube.ico')
+    tkw.config(bg=bg)
     return tkw
 
 
-def tkframe(tkw, window=(10, 10, 100, 100), frbg='gray85'):
+def tkframe(tkw, window=(10, 10, 100, 100), bg='gray85'):
     x, y, w, h = window
-    tkf = tk.Frame(tkw, bg=frbg, width=w, height=h, relief=tk.RAISED)
+    tkf = tk.Frame(tkw, bg=bg, width=w, height=h, relief=tk.RAISED)
     tkf.place(x=x, y=y)
     return tkf
 
 
 class CmdButton:
-    def __init__(self, frame, xyw, text='button', color='orange'):
+    def __init__(self, frame, xyw, text='button', off_color='orange', on_color='yellow'):
         x, y, w = xyw
-        self.button = tk.Button(
-            frame, text=text, bg=color, width=w, font=tkfont)
+        self.button = tk.Button(frame, text=text, bg=off_color, width=w, font=tkfont)
         self.button.place(x=x, y=y)
-        self.off_color = color
-        self.on_color = 'yellow'
+        self.off_color = off_color
+        self.on_color = on_color
 
     def command(self, command):
         self.button.config(command=command)
@@ -52,10 +51,11 @@ class CmdButton:
 
 
 class ParamEntry:
-    def __init__(self, frame, xyw, label='entry', val=0):
+    def __init__(self, frame, xyw, label='entry', val=0, bg='white'):
         x, y, w = xyw
         self.entry = tk.Entry(frame, font=tkfont, justify=tk.CENTER)
         self.entry['width'] = w
+        self.entry['bg'] = bg
         self.entry.place(x=x, y=y)
         self.set_entry(val)
         self.lbl = tk.Label(frame, text=label, font=tkfont, bg=frame['bg'])
@@ -92,10 +92,12 @@ class ParamEntry:
 class ProgressBar:
     def __init__(self, frame, xyw, bxw, label='progress', val=0):
         import tkinter.ttk as ttk
-        self.entry = ParamEntry(frame, xyw=xyw, label=label, val=0)
+        x, y, w = xyw
         bx, bw = bxw
+        self.entry = ParamEntry(frame, xyw=xyw, label=label, val=0, bg='gray85')
         self.prog = ttk.Progressbar(frame)
-        self.prog.place(x=bx, y=xyw[1]+30, width=bw, height=15)
+        self.prog.place(x=bx, y=y+30, width=bw, height=15)
+
         self.setval(val)
         frame.update_idletasks()
 
@@ -107,6 +109,42 @@ class ProgressBar:
     def getval(self):
         val = self.prog['value']
         return val
+
+
+class ScaleBar():
+    def __init__(self, frame, xyw, vminmax=(0, 100), label='scalebar'):
+        x, y, w = xyw
+        vmin, vmax = vminmax
+        self.slilder = tk.Scale(frame, orient=tk.HORIZONTAL, font=tkfont, bg='gray85')
+        self.slilder.place(x=x, y=y)
+        self.slilder['length'] = w
+        self.slilder['from_'] = vmin
+        self.slilder['to'] = vmax
+        self.lbl = tk.Label(frame, text=label, font=tkfont, bg=frame['bg'])
+        # self.lbl.place(x=x-30, y=y)
+        self.lbl.place(x=x+w, y=y)
+        frame.update_idletasks()
+        lw = self.lbl.winfo_width()
+        self.lbl.place(x=x-lw-5, y=y)
+
+
+    # def set_max(self, vmax):
+    #     self.slilder['to'] = vmax
+    #     tick = vmax - 1
+    #     self.slilder['tickinterval'] = tick
+
+    # def get_max(self):
+    #     return self.slilder['to']
+
+    def set_val(self, value):
+        self.slilder.set(value)
+
+    def get_val(self):
+        return self.slilder.get()
+
+    # def command(self, comm):
+    #     self.slilder.config(command=comm)
+
 
 
 class TextBox:
@@ -134,7 +172,6 @@ if __name__ == '__main__':
     prog = ProgressBar(tkw, xyw=(100, 150, 100))
     prog.setval(75)
     txtbox = TextBox(tkw, xywh=(100, 200, 300, 50))
-    txtbox.update(
-        'Simple is better than complex. \nComplex is better than complicated.')
+    txtbox.update('Simple is better than complex. \nComplex is better than complicated.')
 
     tk.mainloop()
